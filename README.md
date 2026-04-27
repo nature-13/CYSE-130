@@ -51,18 +51,4 @@ HOW THE GAME WORKS:
 4. Game updates scenes, inventory, and story
 5. Ending is reached based on decisions
 
-TESTING:
-The game includes unit tests to verify logic like:
-- Inventory system
-- Memory fragment counting
-- Ending conditions
-- Player movement calculations
 
-How to run tests:
-python garden_between_lives_game.py --test
-
-How to run game:
-python garden_between_lives_game.py
-
-If tkinter is missing, install Python with Tk support from python.org.
-"""
