@@ -3,7 +3,7 @@ Text-based game
 The Garden Between Lives - Graphic Version
 
 GAME DESCRIPTION:
-This is a story-based interactive adventure game built using Python and the tkinter library.
+This is a story based interactive adventure game built using Python and the tkinter library.
 The game places the player inside a surreal, dream-like world where they explore different paths,
 make choices, collect items, and unlock multiple endings.
 
