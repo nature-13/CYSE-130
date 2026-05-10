@@ -1,0 +1,147 @@
+# defining the path_two function for the second path of the game
+def path_two(self):
+    self.story_arc += 1
+    log_event(f"{self.username} entered path 2: Deja Vu")
+    print(" Path 2: Deja Vu")
+    print("Mirror Hall >> Mae >> Clock Tower")
+    self.Mirror_hall_scene()
+
+# This is the third scene.
+def clock_tower_scene(self, fast_escape):
+    try:
+        print("Scene 3: Clock Tower")
+        print("A massive clock ticks loudly")
+        print("Choice:")
+        print("1. Reset the clock")
+        print("2. Break the clock")
+        choice = self.get_menu_choice(2)
+        # asking player for choice
+        if choice == "1":
+            self.ending_2()
+        else:
+            self.ending_3(fast_escape)
+    except:
+        print("Error")
+        self.ending_3(False)
+
+# this is the second scene.
+def maze_scene(self):
+    # using the try and except block to avoid errors.
+    try:
+        print("Scene 2: Maze")
+        print("The paths repeat. You feel stuck")
+        print("Choice:")
+        # condition if the memory fragment is in the inventory
+        if "Memory Fragment" in self.inventory:
+            print("1. Follow instinct")
+            print("2. Use Memory")
+            choice = self.get_menu_choice(2)
+            # asking player for their choice
+            if choice == "2":
+                print("Memory guides you perfectly!")
+                print("You escape the maze.")
+                log_event("Path 2: Player used Memory Fragment to escape the maze.")
+                self.clock_tower_scene(True)
+            else:
+                print("You wander longer but eventually escape.")
+                self.clock_tower_scene(False)
+        else:
+            print("1. Follow instinct")
+            self.get_menu_choice(1)
+            print("You wander longer but eventually escape")
+            clock_tower_scene(False)
+    except:
+        print("Error")
+        clock_tower_scene(False)
+
+# The first scene is the mirror hall.
+def Mirror_hall_scene(self):
+    # Using the try and except block to avoid any errors.
+    try:
+        print("Scene 1: Hall of Mirrors")
+        print("You've entered a hall of mirrors!")
+        print("One reflection does not follow you.")
+        print("You chose differently last time.")
+        print("Choice:")
+        print("1. Touch the mirror")
+        print("2. Ignore it")
+        # calling the get_menu_choice method to get the choice
+        choice = self.get_menu_choice(2)
+
+        # Choice 1 = touch the mirror
+        if choice == "1":
+            print("A memory flashes through your mind.")
+            # Adding an item to the inventory
+            self.add_item("Memory Fragment")
+            log_event("Path 2: Player touched the mirror, Memory Fragment collected.")
+        else:
+            print("You walk past. The reflection watches silently.")
+
+        # calling the function
+        maze_scene(inventory)
+    except:
+        print("Error")
+        self.maze_scene()
+
+# This is a possible ending
+def ending_2(self):
+    # using try and except to avoid errors
+    try:
+        print("Ending 2: Partial Freedom")
+        print("Time resets")
+        print("The world shifts")
+        print("You fall into darkness")
+        print("Bittersweet escape achieved")
+        log_event("Path 2: Player reached ending 2: Partial freedom.")
+        self.game_active = False
+    except:
+        print("Ending 2: Partial freedom achieved")
+        self.game_active = False
+
+
+# This is another possible ending.
+def ending_3(self, fast_escape):
+    # using try and except to avoid errors.
+    try:
+        print("Ending 3: Aware Loop")
+        print("The clock shatters")
+        if fast_escape:
+            print("You used the Memory Fragment perfectly")
+        print("You remain-")
+        print("but now you remember everything")
+        print("Full awareness achieved")
+        log_event("Path 2: Player reached Ending 3: Aware Loop")
+        self.game_active = False
+    except:
+        print("Ending 3: Aware loop achieved")
+        self.game_active = False
+
+# Defining the main method
+def main():
+    # Using try and except block to avoid errors.
+    try:
+        print("Path 2: DEJA VU")
+        print("xxxxxxxxxxxxxxxxxx")
+        print("Mirror Hall >> Maze >> Clock Tower")
+
+        # asking the player if they want to play again
+        play_again = "y"
+        while play_again.lower() == "y":  # FIXED: Correct while loop
+            try:
+                Mirror_hall_scene()
+            except:
+                print("Error")
+                break
+
+            play_again = input("Play again? (y/n): ")  # FIXED: Added input()
+
+        print("Thanks for playing Deja Vu!")
+    except:
+        print("Game ended")
+
+
+# calling the main method while using try and except block.
+try:
+    main()
+except:
+    print("Game completed.")
