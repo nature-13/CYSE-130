@@ -147,6 +147,40 @@ Pathway one - fey start
             print("Error in Mirror Hall:", e)
             self.maze_scene()  # Continue even if something goes wrong
 
+    #This is the second scene.
+    def maze_scene(self):
+        try:
+            print("\nScene 2: Maze")
+            print("The paths repeat. You feel stuck.\n")
+
+            if "Memory Fragment" in self.inventory:
+                # Player has the fragment so offer a smarter option
+                print("1. Follow instinct")
+                print("2. Use Memory\n")
+                choice = self.get_menu_choice(2)
+
+                if choice == 2:
+                    # Using the fragment = fast escape, noted in the ending
+                    print("Memory guides you perfectly!")
+                    print("You escape the maze.\n")
+                    log_event("Path 2: Player used Memory Fragment to escape the maze.")
+                    self.clock_tower_scene(True)
+                else:
+                    # Ignored the fragment, still escapes, just slower
+                    print("You wander longer but eventually escape.\n")
+                    self.clock_tower_scene(False)
+            else:
+                # No fragment, only one option
+                print("1. Follow instinct\n")
+                self.get_menu_choice(1)
+                print("You wander longer but eventually escape.\n")
+                self.clock_tower_scene(False)
+        except Exception as e:
+            print("Error in Maze:", e)
+            self.clock_tower_scene(False)
+
+
+
 #Major event 1
 
 
