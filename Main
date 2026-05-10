@@ -182,12 +182,21 @@ Pathway one - fey start
     -  NPCs: The Host, The Gatekeeper, The Smiling Girl, Cheshire Cat
     - Key endings: Acceptance Ending and Freedom ending
 """
+#Major event 1, NPC 1, Drop 1
         self.story_arc += 1
         log_event(f"{self.username} entered Path 1: First Life")
         print('\nScene 1: The Garden\n\nYou wake in a surreal garden. The sky swirls above you.\nYou see something on the ground.\n')
         print('1. Pick up the object\n2. Ignore it\n')
+        choice = self.get_menu_choice(2)
+        if choice == 1:
+            # Picking up the watch provides a safety net at the Gatekeeper riddle 
+            self.inventory.append("Cracked Watch") #Cracked watch can be used to redo loop and avoid loop ending in major event 4
+            print("You obtained: Cracked Watch\n")
+        else:
+            print("\nYou leave it behind...")
 
 
+###
 #This is the second path. There are going to be three scenes.
     def path_two(self):       
         self.story_arc += 1
