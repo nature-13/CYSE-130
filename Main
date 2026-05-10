@@ -70,6 +70,80 @@ class Game:
     def add_item(self, item):
         self.inventory.append(item)
         print(f"[{item} Added Successfully]")
+#LOAD
+    def load_game(self):
+        if not verify_save_integrity():
+            print("Load aborted to protect game state.")
+            return
+
+        try:
+            with open(SAVE_FILE, "r") as file:
+                self.story_arc = int(file.readline().strip())
+                self.health = int(file.readline().strip())
+                inventory_line = file.readline().strip()
+                # If inventory line is empty, default to an empty list
+                self.inventory = inventory_line.split(",") if inventory_line else []
+
+            print("Game loaded!")
+            print(f"  Arc: {self.story_arc}  |  Health: {self.health}  |  Inventory: {self.inventory}")
+            log_event(f"Game loaded by {self.username}")
+
+        except FileNotFoundError:
+            print("No save file found.")
+
+    # STATS 
+    def show_stats(self):
+        """
+        Displays the player's current story arc, health, and inventory.
+        Pauses until the player presses Enter before returning to the game.
+        """
+        print("\n--- STATS ---")
+        print("Story Arc:", self.story_arc)
+        print("Health:", self.health)
+        print("Inventory:", self.inventory)
+        input("\nPress Enter to continue...")
+
+    # MENU 
+    def get_menu_choice(self, limit):
+        while True:
+            choice = input("Enter choice (press m to see menu): ")
+            if choice == "m":
+                # Show the in-game side menu
+                while True:
+                    print("\n--- MAIN MENU ---")
+                    print("A. Continue Playing")
+                    print("B. Save Game")
+                    print("C. Load Game")
+                    print("D. Show Stats")
+                    print("E. Quit Game")
+
+                    menu_choice = input("Choose an option: ")
+
+                    if menu_choice.lower() == "a":
+                        break  # Return to the game
+                    elif menu_choice.lower() == "b":
+                        self.save_game()
+                        input("Press Enter to continue...")
+                    elif menu_choice.lower() == "c":
+                        self.load_game()
+                        input("Press Enter to continue...")
+                    elif menu_choice.lower() == "d":
+                        self.show_stats()
+                    elif menu_choice.lower() == "e":
+                        print("Goodbye.")
+                        sys.exit()
+                    else:
+                        print("Invalid choice.")
+            else:
+                try:
+                    num = int(choice)
+                    if num < 1 or num > limit:
+                        print("Invalid choice.")
+                    else:
+                        return num
+                except ValueError:
+                    print("Invalid choice.")
+                    log_event("Invalid input entered by player.")
 
 
     def start (self):
@@ -113,12 +187,40 @@ Pathway one - fey start
         print('\nScene 1: The Garden\n\nYou wake in a surreal garden. The sky swirls above you.\nYou see something on the ground.\n')
         print('1. Pick up the object\n2. Ignore it\n')
 
-#guvfgvgybvgbghbubh
 
+#This is the second path. There are going to be three scenes.
+    def path_two(self):       
+        self.story_arc += 1
+        log_event(f"{self.username} entered Path 2: Deja Vu")
+        print("\nPath 2: Deja Vu")
+        print("Mirror Hall >> Maze >> Clock Tower\n")
+        self.Mirror_hall_scene()
 
+    #This is the first scene
+    def Mirror_hall_scene(self):
+        try:
+            print("Scene 1: Hall of Mirrors")
+            print("You've entered a hall of mirrors!")
+            print("One reflection does not follow you.")
+            print("You chose differently last time.\n")
+            print("1. Touch the mirror")
+            print("2. Ignore it\n")
+            choice = self.get_menu_choice(2)
+
+            if choice == 1:
+                # Memory Fragment unlocks an easier path through the maze
+                print("A memory flashes through your mind.")
+                self.add_item("Memory Fragment")
+                log_event("Path 2: Player touched the mirror, Memory Fragment collected.")
+            else:
+                print("You walk past. The reflection watches silently.")
+
+            self.maze_scene()
+        except Exception as e:
+            print("Error in Mirror Hall:", e)
+            self.maze_scene()  # Continue even if something goes wrong
 
 #Major event 1
-
 
 
 
