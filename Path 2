@@ -54,4 +54,31 @@ def maze_scene(self):
         print("Error")
         clock_tower_scene(False)
 
-        
+# The first scene is the mirror hall.
+def Mirror_hall_scene(self):
+    # Using the try and except block to avoid any errors.
+    try:
+        print("Scene 1: Hall of Mirrors")
+        print("You've entered a hall of mirrors!")
+        print("One reflection does not follow you.")
+        print("You chose differently last time.")
+        print("Choice:")
+        print("1. Touch the mirror")
+        print("2. Ignore it")
+        # calling the get_menu_choice method to get the choice
+        choice = self.get_menu_choice(2)
+
+        # Choice 1 = touch the mirror
+        if choice == "1":
+            print("A memory flashes through your mind.")
+            # Adding an item to the inventory
+            self.add_item("Memory Fragment")
+            log_event("Path 2: Player touched the mirror, Memory Fragment collected.")
+        else:
+            print("You walk past. The reflection watches silently.")
+
+        # calling the function
+        maze_scene(inventory)
+    except:
+        print("Error")
+        self.maze_scene()
