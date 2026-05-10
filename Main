@@ -229,6 +229,86 @@ Pathway one - fey start
             print("Error in Mirror Hall:", e)
             self.maze_scene()  # Continue even if something goes wrong
 
+    #This is the second scene.
+    def maze_scene(self):
+        try:
+            print("\nScene 2: Maze")
+            print("The paths repeat. You feel stuck.\n")
+
+            if "Memory Fragment" in self.inventory:
+                # Player has the fragment so offer a smarter option
+                print("1. Follow instinct")
+                print("2. Use Memory\n")
+                choice = self.get_menu_choice(2)
+
+                if choice == 2:
+                    # Using the fragment = fast escape, noted in the ending
+                    print("Memory guides you perfectly!")
+                    print("You escape the maze.\n")
+                    log_event("Path 2: Player used Memory Fragment to escape the maze.")
+                    self.clock_tower_scene(True)
+                else:
+                    # Ignored the fragment, still escapes, just slower
+                    print("You wander longer but eventually escape.\n")
+                    self.clock_tower_scene(False)
+            else:
+                # No fragment, only one option
+                print("1. Follow instinct\n")
+                self.get_menu_choice(1)
+                print("You wander longer but eventually escape.\n")
+                self.clock_tower_scene(False)
+        except Exception as e:
+            print("Error in Maze:", e)
+            self.clock_tower_scene(False)
+
+    #this is the third scene.
+    def clock_tower_scene(self, fast_escape):
+        try:
+            print("Scene 3: Clock Tower")
+            print("A massive clock ticks loudly.\n")
+            print("1. Reset the clock")
+            print("2. Break the clock\n")
+            choice = self.get_menu_choice(2)
+
+            if choice == 1:
+                self.ending_2()
+            else:
+                self.ending_3(fast_escape)
+        except Exception as e:
+            print("Error in Clock Tower:", e)
+            self.ending_3(False)
+
+    #This is a possible ending
+    def ending_2(self):
+        #Using the try and except block to avoid any errors.
+        try:
+            print("\nEnding 2: Partial Freedom")
+            print("Time resets. The world shifts.")
+            print("You fall into darkness.")
+            print("Bittersweet escape achieved.\n")
+            log_event("Path 2: Player reached Ending 2: Partial Freedom.")
+            self.game_active = False
+        except Exception as e:
+            print("Ending 2: Partial freedom achieved.", e)
+            self.game_active = False
+
+    #This is another possible ending
+    def ending_3(self, fast_escape):
+        #Using the try and except block to avoid any errors
+        try:
+            print("\nEnding 3: Aware Loop")
+            print("The clock shatters.")
+            if fast_escape:
+                # Bonus acknowledgement for smart item use
+                print("You used the Memory Fragment perfectly.")
+            print("You remain – but now you remember everything.")
+            print("Full awareness achieved.\n")
+            log_event("Path 2: Player reached Ending 3: Aware Loop.")
+            self.game_active = False
+        except Exception as e:
+            print("Ending 3: Aware loop achieved.", e)
+            self.game_active = False
+
 #Major event 1
 
 
