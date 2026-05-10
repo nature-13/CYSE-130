@@ -123,7 +123,29 @@ Pathway one - fey start
         print("Mirror Hall >> Maze >> Clock Tower\n")
         self.Mirror_hall_scene()
 
+    #This is the first scene
+    def Mirror_hall_scene(self):
+        try:
+            print("Scene 1: Hall of Mirrors")
+            print("You've entered a hall of mirrors!")
+            print("One reflection does not follow you.")
+            print("You chose differently last time.\n")
+            print("1. Touch the mirror")
+            print("2. Ignore it\n")
+            choice = self.get_menu_choice(2)
 
+            if choice == 1:
+                # Memory Fragment unlocks an easier path through the maze
+                print("A memory flashes through your mind.")
+                self.add_item("Memory Fragment")
+                log_event("Path 2: Player touched the mirror, Memory Fragment collected.")
+            else:
+                print("You walk past. The reflection watches silently.")
+
+            self.maze_scene()
+        except Exception as e:
+            print("Error in Mirror Hall:", e)
+            self.maze_scene()  # Continue even if something goes wrong
 
 #Major event 1
 
