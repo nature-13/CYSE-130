@@ -210,6 +210,22 @@ Pathway one - fey start
             print("Ending 2: Partial freedom achieved.", e)
             self.game_active = False
 
+    #This is another possible ending
+    def ending_3(self, fast_escape):
+        #Using the try and except block to avoid any errors
+        try:
+            print("\nEnding 3: Aware Loop")
+            print("The clock shatters.")
+            if fast_escape:
+                # Bonus acknowledgement for smart item use
+                print("You used the Memory Fragment perfectly.")
+            print("You remain – but now you remember everything.")
+            print("Full awareness achieved.\n")
+            log_event("Path 2: Player reached Ending 3: Aware Loop.")
+            self.game_active = False
+        except Exception as e:
+            print("Ending 3: Aware loop achieved.", e)
+            self.game_active = False
 
 #Major event 1
 
