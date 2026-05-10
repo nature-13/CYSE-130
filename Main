@@ -196,6 +196,21 @@ Pathway one - fey start
             print("Error in Clock Tower:", e)
             self.ending_3(False)
 
+    #This is a possible ending
+    def ending_2(self):
+        #Using the try and except block to avoid any errors.
+        try:
+            print("\nEnding 2: Partial Freedom")
+            print("Time resets. The world shifts.")
+            print("You fall into darkness.")
+            print("Bittersweet escape achieved.\n")
+            log_event("Path 2: Player reached Ending 2: Partial Freedom.")
+            self.game_active = False
+        except Exception as e:
+            print("Ending 2: Partial freedom achieved.", e)
+            self.game_active = False
+
+
 #Major event 1
 
 
