@@ -1,0 +1,18 @@
+ # ─────────────────────────────────────────
+    #  PATH TWO  (Harsimar)
+    # ─────────────────────────────────────────
+    def path_two(self):
+        """
+        Path 2: Deja Vu.
+        A disorienting loop through a Hall of Mirrors, a Maze, and a Clock Tower.
+        The player may collect a Memory Fragment to navigate faster.
+
+        Possible endings:
+          - Ending 2: Partial Freedom  (reset the clock)
+          - Ending 3: Aware Loop       (break the clock — full awareness)
+        """
+        self.story_arc += 1
+        log_event(f"{self.username} entered Path 2: Deja Vu")
+        print("\nPath 2: Deja Vu")
+        print("Mirror Hall >> Maze >> Clock Tower\n")
+        self.Mirror_hall_scene()
