@@ -1,13 +1,61 @@
-def get_menu_choice(limit):
-    while True:
-        try:
-            choice = int(input('Enter choice: '))
-            if choice < 1 or choice > limit:
-                print('invalid choice' )
-            else:
-                return choice
-        except ValueError:
-            print('invalid choice')
+#IMPORTS 
+
+import sys           
+import datetime     
+import hashlib       
+import os            
+
+#AUDIT - Rashed 
+
+def log_event(message):
+    with open("audit_log.txt", "a") as log:
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log.write(f"[{timestamp}] {message}\n")
+
+#HASHING - Rashed
+
+HASH_FILE = "save_hash.txt"   # Stores SHA-256 
+SAVE_FILE = "save_file.txt"   
+
+def compute_hash(filepath):
+    sha256 = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        # Read the file in 4096-byte chunks to handle large files efficiently
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def save_hash(hash_value):
+    with open(HASH_FILE, "w") as f:
+        f.write(hash_value)
+
+def load_hash():
+    if not os.path.exists(HASH_FILE):
+        return None
+    with open(HASH_FILE, "r") as f:
+        return f.read().strip()
+
+def verify_save_integrity():
+    if not os.path.exists(SAVE_FILE):
+        print("No save file found.")
+        return False
+
+    stored = load_hash()
+    if stored is None:
+        print("No hash record found – cannot verify integrity.")
+        return False
+
+    current = compute_hash(SAVE_FILE)
+
+    if current == stored:
+        print("[Tamper Check PASSED] Save file is intact.")
+        log_event("Tamper check passed – save file loaded successfully.")
+        return True
+    else:
+        print(f"  Expected : {stored}")
+        print(f"  Got      : {current}")
+        log_event("Tamper check FAILED – save file may have been tampered with.")
+        return False
 
 #Hajra: start
 
