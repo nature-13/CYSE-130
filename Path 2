@@ -115,3 +115,33 @@ def ending_3(self, fast_escape):
     except:
         print("Ending 3: Aware loop achieved")
         self.game_active = False
+
+# Defining the main method
+def main():
+    # Using try and except block to avoid errors.
+    try:
+        print("Path 2: DEJA VU")
+        print("xxxxxxxxxxxxxxxxxx")
+        print("Mirror Hall >> Maze >> Clock Tower")
+
+        # asking the player if they want to play again
+        play_again = "y"
+        while play_again.lower() == "y":  # FIXED: Correct while loop
+            try:
+                Mirror_hall_scene()
+            except:
+                print("Error")
+                break
+
+            play_again = input("Play again? (y/n): ")  # FIXED: Added input()
+
+        print("Thanks for playing Deja Vu!")
+    except:
+        print("Game ended")
+
+
+# calling the main method while using try and except block.
+try:
+    main()
+except:
+    print("Game completed.")
