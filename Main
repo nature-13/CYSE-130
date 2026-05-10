@@ -225,7 +225,7 @@ class Game:
         if choice == 1: # Touching the mirror gives an item but deals damage now AND in future scenes
             self.health -= 20
             self.inventory.append("Glass Shard")
-            print('\nThe mirror cracks at your slight touch; your reflection smiles back incorrectly.\nYou obtained: "Glass Shard"\nYou start to bleed.\nYou have lost 20 health and will continue to lose health\n")
+            print('\nThe mirror cracks at your slight touch; your reflection smiles back incorrectly.\nYou obtained: "Glass Shard"\nYou start to bleed.\nYou have lost 20 health and will continue to lose health\n')
         else:
             print("\nYou avoid your own reflection\n")
 
