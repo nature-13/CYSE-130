@@ -187,7 +187,6 @@ Pathway one - fey start
         print('\nScene 1: The Garden\n\nYou wake in a surreal garden. The sky swirls above you.\nYou see something on the ground.\n')
         print('1. Pick up the object\n2. Ignore it\n')
 
-#guvfgvgybvgbghbubh
 
 #This is the second path. There are going to be three scenes.
     def path_two(self):       
@@ -222,7 +221,6 @@ Pathway one - fey start
             self.maze_scene()  # Continue even if something goes wrong
 
 #Major event 1
-
 
 
 
