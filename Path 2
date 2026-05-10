@@ -5,3 +5,21 @@ def path_two(self):
     print(" Path 2: Deja Vu")
     print("Mirror Hall >> Mae >> Clock Tower")
     self.Mirror_hall_scene()
+
+# This is the third scene.
+def clock_tower_scene(self, fast_escape):
+    try:
+        print("Scene 3: Clock Tower")
+        print("A massive clock ticks loudly")
+        print("Choice:")
+        print("1. Reset the clock")
+        print("2. Break the clock")
+        choice = self.get_menu_choice(2)
+        # asking player for choice
+        if choice == "1":
+            self.ending_2()
+        else:
+            self.ending_3(fast_escape)
+    except:
+        print("Error")
+        self.ending_3(False)
