@@ -16,3 +16,5 @@
         print("\nPath 2: Deja Vu")
         print("Mirror Hall >> Maze >> Clock Tower\n")
         self.Mirror_hall_scene()
+
+    
