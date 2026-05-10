@@ -15,7 +15,9 @@ class Game:
     def __init__(self, username):
         self.username = username
         self.inventory = []
-
+        self.story_arc = 1  
+        self.health = 100
+        self.game_active = True
 
     def add_item(self, item):
         self.inventory.append(item)
