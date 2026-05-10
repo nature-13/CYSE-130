@@ -211,7 +211,7 @@ class Game:
         choice = self.get_menu_choice(2)
 
         if choice == 1: # Tea Vial can be used to bypass the Gatekeeper riddle later in major event 4
-            print('You drink the tea.\nYou obtained: "Tea Vial"\nThe world bends slightly. Something feels... off...\nThe Host waves goodbye and walks away\n")
+            print('You drink the tea.\nYou obtained: "Tea Vial"\nThe world bends slightly. Something feels... off...\nThe Host waves goodbye and walks away\n')
             self.inventory.append("Tea Vial")
         else: # Refusing has no item reward but the Host disappears
             print("You refuse the tea. The Host's smile fades.\n"How disappointing."\nThe Host disappears right before your eyes\n")
