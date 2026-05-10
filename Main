@@ -206,7 +206,7 @@ class Game:
             print("\nYou leave it behind...")
 #Major event 2, NPC 2, Drop 2
         self.story_arc += 1
-        print("\nScene 2: Tea Party\n\nYou walk further into the garden and encounter a tea party.\nA long table stretches endlessly. The Host smiles.\n"You made it. You always do"\nThe Host offers you a cup of tea.\n")
+        print('\nScene 2: Tea Party\n\nYou walk further into the garden and encounter a tea party.\nA long table stretches endlessly. The Host smiles.\n"You made it. You always do"\nThe Host offers you a cup of tea.\n')
         print("1. Drink the tea\n2. Refuse\n")
         choice = self.get_menu_choice(2)
 
@@ -214,7 +214,7 @@ class Game:
             print('You drink the tea.\nYou obtained: "Tea Vial"\nThe world bends slightly. Something feels... off...\nThe Host waves goodbye and walks away\n')
             self.inventory.append("Tea Vial")
         else: # Refusing has no item reward but the Host disappears
-            print("You refuse the tea. The Host's smile fades.\n"How disappointing."\nThe Host disappears right before your eyes\n")
+            print('You refuse the tea. The Hosts smile fades.\n"How disappointing."\nThe Host disappears right before your eyes\n')
 
 #Major event 3, Drop 3, Challenge 1, 
         self.story_arc += 1
@@ -328,7 +328,7 @@ class Game:
 
 #Final, NPC 5
         self.story_arc += 1
-        print("Final: The Door\n\NYou see pillars in front of a glowing door.\n The highest pillar reads: "Place three items to open the door"\n')
+        print('Final: The Door\n\nYou see pillars in front of a glowing door.\n The highest pillar reads: "Place three items to open the door"\n')
 
         # Final Glass Shard drain (if not protected by helpcat)
         if "Glass Shard" in self.inventory and self.helpcat == False:
