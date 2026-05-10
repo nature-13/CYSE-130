@@ -1,1 +1,135 @@
+def path_three(self):
+        self.story_arc += 1
+        log_event(f"{self.username} entered Path 3: Reincarnation")
+
+        # Scene 1
+        print("\nScene 1: Hidden Tunnel\n")
+        print("You already know this place.")
+        print("The whispering voice guides you underground.")
+        print('"Finally... you remember."\n')
+        print("1. Enter the tunnel")
+        print("2. Turn back\n")
+        choice = self.get_menu_choice(2)
+
+        if choice == 1:
+            print("\nYou step into the darkness.")
+            print("Fragments of your past flash before your eyes.\n")
+        else:
+            print("\nYou try to turn back...")
+            print("But the garden shifts around you.")
+            print("There is no escape. You are pulled forward.\n")
+
+        self.inventory.append("Memory Fragment")
+        print('You obtained: "Memory Fragment"\n')
+
+        # Scene 2
+        self.story_arc += 1
+        print("\nScene 2: The Forgotten Ones\n")
+        print("Figures emerge from the shadows.")
+        print("The people who wronged you in your past life stare silently.\n")
+        print('"Do you still hate us?"\n')
+        print("1. Forgive them")
+        print("2. Take revenge\n")
+
+        self.revenge = False
+        choice = self.get_menu_choice(2)
+
+        if choice == 1:
+            print('\nYou lower your weapon.')
+            print('"I will end the cycle differently."\n')
+            self.inventory.append("Mask Fragment")
+            print('You obtained: "Mask Fragment"\n')
+            log_event(f"{self.username} chose forgiveness in Scene 2")
+        else:
+            self.revenge = True
+            print("\nYour anger consumes you.")
+            print("The world around you darkens.\n")
+            self.inventory.append("Shadow Crown")
+            print('You obtained: "Shadow Crown"\n')
+            log_event(f"{self.username} chose revenge in Scene 2")
+
+        # Scene 3
+        self.story_arc += 1
+        print("\nScene 3: Memory Chamber\n")
+        print("A massive door blocks your path.")
+        print('Words appear across its surface:\n')
+        print('"What breaks the cycle?"\n')
+        print("(Hint: speak your truth)\n")
+
+        repeat = 1
+        while repeat == 1:
+            answer = input("Choose Story Arc: ").lower()
+
+            if answer == "forgiveness":
+                print("\nThe door slowly opens.\n")
+                repeat += 1
+            elif answer == "revenge":
+                if self.revenge:
+                    print("\nThe darkness accepts your answer.")
+                    print("The door opens violently.\n")
+                    repeat += 1
+                else:
+                    print("\nThe chamber rejects your answer.")
+                    print("Your path does not match your words.\n")
+            else:
+                print("\nThe chamber remains silent.\n")
+                print("1. Try again")
+                print("2. Give up\n")
+                choice = self.get_menu_choice(2)
+
+                if choice == 2:
+                    print("\nBad Ending: Forgotten\n")
+                    print("Your memories fade forever.\n")
+                    log_event(f"{self.username} reached Bad Ending: Forgotten")
+                    sys.exit()
+
+        # Final Scene
+        self.story_arc += 1
+        print("\nFinal Scene: Throne Room\n")
+        print('The Host sits upon a throne of roots and glass.\n')
+        print('"So... this is the version of you that remembers."\n')
+
+        if "Mask Fragment" in self.inventory:
+            print("The Host looks uneasy at the fragment in your hand.\n")
+        if "Shadow Crown" in self.inventory:
+            print("The throne trembles in response to your anger.\n")
+        if "Memory Fragment" in self.inventory:
+            print("The Host's eyes flicker. \"You remember all of it, don't you.\"\n")
+
+        print("1. Destroy the system")
+        print("2. Take control")
+        print("3. Let go\n")
+        choice = self.get_menu_choice(3)
+
+        if choice == 1:
+            print("\nTrue Ending: Freedom\n")
+            print("The garden begins to collapse.")
+            print("The sky finally clears.\n")
+            print("You wake up somewhere real.")
+            print("For the first time... you are free.\n")
+            log_event(f"{self.username} reached True Ending: Freedom")
+            sys.exit()
+
+        elif choice == 2:
+            print("\nDark Ending: The New Ruler\n")
+            print("You sit upon the throne.")
+            print("The garden bends to your will.\n")
+            if self.revenge:
+                print("You already know what comes next.")
+                print("You became exactly what trapped you.\n")
+            else:
+                print("Maybe this time things will be different.")
+                print("Maybe.\n")
+            print('"They are late again."\n')
+            log_event(f"{self.username} reached Dark Ending: New Ruler")
+            sys.exit()
+
+        else:
+            print("\nCorruption Ending\n")
+            print("You let everything go.\n")
+            print("But something else takes your place.")
+            print("Something worse.\n")
+            print("The cycle continues.\n")
+            log_event(f"{self.username} reached Corruption Ending")
+            sys.exit()
 
