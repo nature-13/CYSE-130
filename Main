@@ -222,6 +222,19 @@ Pathway one - fey start
         else: # Refusing has no item reward but the Host disappears
             print("You refuse the tea. The Host's smile fades.\n"How disappointing."\nThe Host disappears right before your eyes\n")
 
+#Major event 3, Drop 3, Challenge 1, 
+        self.story_arc += 1
+        print("\nScene 3: Mirror Garden\n\nYou walk into a garden filled with mirrors, but your reflection moves unusually\n")
+        print("1. Touch the mirror\n2. Look away\n")
+        choice = self.get_menu_choice(2)
+
+        if choice == 1: # Touching the mirror gives an item but deals damage now AND in future scenes
+            self.health -= 20
+            self.inventory.append("Glass Shard")
+            print('\nThe mirror cracks at your slight touch; your reflection smiles back incorrectly.\nYou obtained: "Glass Shard"\nYou start to bleed.\nYou have lost 20 health and will continue to lose health\n")
+        else:
+            print("\nYou avoid your own reflection\n")
+#Major event 4, Drop 4, Challange 2
 
 ###
 #This is the second path. There are going to be three scenes.
