@@ -179,7 +179,22 @@ Pathway one - fey start
             print("Error in Maze:", e)
             self.clock_tower_scene(False)
 
+    #this is the third scene.
+    def clock_tower_scene(self, fast_escape):
+        try:
+            print("Scene 3: Clock Tower")
+            print("A massive clock ticks loudly.\n")
+            print("1. Reset the clock")
+            print("2. Break the clock\n")
+            choice = self.get_menu_choice(2)
 
+            if choice == 1:
+                self.ending_2()
+            else:
+                self.ending_3(fast_escape)
+        except Exception as e:
+            print("Error in Clock Tower:", e)
+            self.ending_3(False)
 
 #Major event 1
 
