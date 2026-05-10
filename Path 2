@@ -82,3 +82,36 @@ def Mirror_hall_scene(self):
     except:
         print("Error")
         self.maze_scene()
+
+# This is a possible ending
+def ending_2(self):
+    # using try and except to avoid errors
+    try:
+        print("Ending 2: Partial Freedom")
+        print("Time resets")
+        print("The world shifts")
+        print("You fall into darkness")
+        print("Bittersweet escape achieved")
+        log_event("Path 2: Player reached ending 2: Partial freedom.")
+        self.game_active = False
+    except:
+        print("Ending 2: Partial freedom achieved")
+        self.game_active = False
+
+
+# This is another possible ending.
+def ending_3(self, fast_escape):
+    # using try and except to avoid errors.
+    try:
+        print("Ending 3: Aware Loop")
+        print("The clock shatters")
+        if fast_escape:
+            print("You used the Memory Fragment perfectly")
+        print("You remain-")
+        print("but now you remember everything")
+        print("Full awareness achieved")
+        log_event("Path 2: Player reached Ending 3: Aware Loop")
+        self.game_active = False
+    except:
+        print("Ending 3: Aware loop achieved")
+        self.game_active = False
