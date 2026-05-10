@@ -190,13 +190,7 @@ class Game:
                 break
             else:
                 print("You made an invalid choice. Please enter a valid number between 1 and 3.")
-"""
-Pathway one - fey start
-    - 5 major event and a final challenge.
-    - Items: Cracked Watch, Tea Vial, Glass Shard, Shiny Key, Bandages
-    -  NPCs: The Host, The Gatekeeper, The Smiling Girl, Cheshire Cat
-    - Key endings: Acceptance Ending and Freedom ending
-"""
+
     def path_one(self):
 #Major event 1, NPC 1, Drop 1
         self.story_arc += 1
