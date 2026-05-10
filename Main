@@ -231,7 +231,7 @@ class Game:
 
 #Major event 4, NPC 3, Drop 4, Challange 2
         self.story_arc += 1
-        print("\nScene 4: Gatekeeper\n\nYou feel disoriented and find yourself in a room.\nThe only exit is blocked by a tall figure.\n"Answer correctly... Or remain!"\n')
+        print('\nScene 4: Gatekeeper\n\nYou feel disoriented and find yourself in a room.\nThe only exit is blocked by a tall figure.\n"Answer correctly... Or remain!"\n')
 
         if "Glass Shard" in self.inventory:         # Challange 2: Glass Shard drain health each scene it's carried
             self.health -= 20
@@ -277,7 +277,7 @@ class Game:
                     print("\nYou only get one more chance. Use it wisely.\n")
 #Major event 5, NPC 3 AND 4, Drop 5
         self.story_arc += 1
-        print("\nScene 5: Misty Meadow\n\nAs you wander through a misty meadow, a girl with a wide, toothy grin appears.\n"Would you be a dear and watch Pompom for me? I will not be long!"\n')
+        print('\nScene 5: Misty Meadow\n\nAs you wander through a misty meadow, a girl with a wide, toothy grin appears.\n"Would you be a dear and watch Pompom for me? I will not be long!"\n')
 
         # Glass Shard drain health
         if "Glass Shard" in self.inventory:
@@ -299,7 +299,7 @@ class Game:
             if choice == 1:
                 # Cat will not steal item later in final sence
                 self.helpcat = True
-                print("\nYou reach toward the cat carefully.\nThe Cheshire Cat suddenly turns to glare at you. "No." Then disappears.\n\nThe smiling girl appears. "Thank you! Here!"\nShe gives you bandages. You obtained: "Bandages"')
+                print('\nYou reach toward the cat carefully.\nThe Cheshire Cat suddenly turns to glare at you. "No." Then disappears.\n\nThe smiling girl appears. "Thank you! Here!"\nShe gives you bandages. You obtained: "Bandages"')
                 print("Do you want to use the bandages?\n")
                 print("1. Yes\n2. No\n")
                 choice = self.get_menu_choice(2)
