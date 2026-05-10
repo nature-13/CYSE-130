@@ -115,6 +115,14 @@ Pathway one - fey start
 
 #guvfgvgybvgbghbubh
 
+#This is the second path. There are going to be three scenes.
+    def path_two(self):       
+        self.story_arc += 1
+        log_event(f"{self.username} entered Path 2: Deja Vu")
+        print("\nPath 2: Deja Vu")
+        print("Mirror Hall >> Maze >> Clock Tower\n")
+        self.Mirror_hall_scene()
+
 
 
 #Major event 1
