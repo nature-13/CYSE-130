@@ -234,7 +234,54 @@ Pathway one - fey start
             print('\nThe mirror cracks at your slight touch; your reflection smiles back incorrectly.\nYou obtained: "Glass Shard"\nYou start to bleed.\nYou have lost 20 health and will continue to lose health\n")
         else:
             print("\nYou avoid your own reflection\n")
-#Major event 4, Drop 4, Challange 2
+
+#Major event 4, NPC 3, Drop 4, Challange 2
+        self.story_arc += 1
+        print("\nScene 4: Gatekeeper\n\nYou feel disoriented and find yourself in a room.\nThe only exit is blocked by a tall figure.\n"Answer correctly... Or remain!"\n')
+
+        if "Glass Shard" in self.inventory:         # Challange 2: Glass Shard drain health each scene it's carried
+            self.health -= 20
+            print("You have lost 20 health\n")
+
+        # Loop until the player answers correctly, bypasses with Tea Vial, or accepts their fate
+        repeat = 1
+        while repeat == 1:
+            print('Riddle: "What has keys but cannot open locks?"\n')
+
+            if "Tea Vial" in self.inventory: #If tea vial able to skip loop
+                print("1. Use Tea Vial")
+
+            answer = input("Input your answer: ").lower() #No tea vial have to answer correcrtly 
+
+            if answer == "1" and "Tea Vial" in self.inventory: # Tea Vial to skip the riddle
+                print("\nThe Gatekeeper takes the Tea Vial and frowns. \nHe steps aside and lets you through.\n")
+                self.inventory.remove("Tea Vial")
+                repeat += 1  # Exit loop
+
+            elif answer == "piano": #Correct riddle
+                print('The Gatekeeper frowns but lets you through anyway.\nYou obtained: "Shiny Key"\n')
+                self.inventory.append("Shiny Key")
+                repeat += 1  # Exit the loop
+
+            else: # Wrong answer — able to retry with Cracked Watch. 
+                print('The Gatekeeper smiles. "WRONG"\n')
+
+                if "Cracked Watch" in self.inventory:
+                    print("1. Accept your fate\n2. Use Cracked Watch\n")
+                    choice = self.get_menu_choice(2) #Loop
+                else:
+                    print("1. Accept your fate")
+                    choice = self.get_menu_choice(1)
+
+                if choice == 1:
+                    # Bad Ending: player gives up
+                    print("\nBad Ending: Loop\nYou are trapped forever.\n")
+                    log_event(f"{self.username} Bad Ending: Loop")
+                    sys.exit()
+                else:
+                    # Cracked Watch gives one more attempt
+                    print("\nYou only get one more chance. Use it wisely.\n")
+
 
 ###
 #This is the second path. There are going to be three scenes.
