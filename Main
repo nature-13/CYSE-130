@@ -91,6 +91,21 @@ class Game:
         except FileNotFoundError:
             print("No save file found.")
 
+#Save Game
+    def save_game(self):
+        with open(SAVE_FILE, "w") as file:
+            file.write(str(self.story_arc) + "\n")
+            file.write(str(self.health) + "\n")
+            # Inventory is stored as a comma-separated string
+            file.write(",".join(self.inventory) + "\n")
+
+        # Hash the file immediately after writing to capture its clean state
+        file_hash = compute_hash(SAVE_FILE)
+        save_hash(file_hash)
+        print("Game saved!")
+        print(f"  SHA-256 fingerprint: {file_hash}")
+        log_event(f"Game saved – {self.username} at arc {self.story_arc} | hash={file_hash}")
+
     # STATS 
     def show_stats(self):
         """
