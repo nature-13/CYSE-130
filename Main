@@ -1,1 +1,77 @@
+def get_menu_choice(limit):
+    while True:
+        try:
+            choice = int(input('Enter choice: '))
+            if choice < 1 or choice > limit:
+                print('invalid choice' )
+            else:
+                return choice
+        except ValueError:
+            print('invalid choice')
+
+#Hajra: start
+
+class Game:
+    def __init__(self, username):
+        self.username = username
+        self.inventory = []
+
+
+    def add_item(self, item):
+        self.inventory.append(item)
+        print(f"[{item} Added Successfully]")
+
+
+    def start (self):
+        print(f"\nWelcome {self.username} to the World of the Forgotten.")
+        print("You were not supposed to wake up.")
+        print("\nYou wake on cold grass. The sky above you swirls like paint.")
+        print("\nA voice echoes:")
+        print("'You're late again!'\n")
+        self.opening_choice()
+
+
+    def opening_choice(self):
+        print("Three paths stretch before you.\n")
+        print("1. Follow the white figureFirst Life")
+        print("2. Walk into the forest alone"Deja Vu”)
+        print("3. Follow the whispering voiceReincarnation/ Revenge")
+
+
+        while True:
+            choice = input("\nWhich path do you choose? (Enter 1,2, or 3): ")
+            if choice == "1":
+                self.path_one()
+                break
+            elif choice == "2":
+                self.path_two()
+                break
+            elif choice == "3":
+                self.path_three()
+                break
+            else:
+                print("You made an invalid choice. Please enter a valid number between 1 and 3.")
+
+
+
+
+
+
+
+
+def main():
+    while True:
+        username = input("Hello stranger. Enter a username: ")
+        if len(username) >= 3:
+            break
+        else:
+            print("Username must be at least 3 characters long. Try again!\n")
+
+
+    game =Game(username)
+    game.start()
+
+
+if __name__ == "__main__":
+    main()
 
