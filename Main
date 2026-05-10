@@ -190,7 +190,7 @@ class Game:
                 break
             else:
                 print("You made an invalid choice. Please enter a valid number between 1 and 3.")
-'''
+"""
 Pathway one - fey start
     - 5 major event and a final challenge.
     - Items: Cracked Watch, Tea Vial, Glass Shard, Shiny Key, Bandages
@@ -332,8 +332,44 @@ Pathway one - fey start
             print('\nShe frowns. "You will regret this."\nThe cat lunges at you\nYou lose 20 health\nWhen you regain your vison, they are gone')
             self.health -= 20
 
-            
+#Final, NPC 5
+        self.story_arc += 1
+        print("Final: The Door\n\NYou see pillars in front of a glowing door.\n The highest pillar reads: "Place three items to open the door"\n')
 
+        # Final Glass Shard drain (if not protected by helpcat)
+        if "Glass Shard" in self.inventory and self.helpcat == False:
+            self.health -= 20
+            print("You have lost 20 health\n")
+            if self.health <= 0:
+                print("\nBad Ending: Death\n So so unlucky\n")
+                log_event(f"{self.username} reached Bad Ending: Death, so so unlucky")
+                sys.exit()
+
+        # If player didn't help the cat, Cheshire steals an item as punishment
+        if self.helpcat == False:
+            if self.inventory:
+                stolen = self.inventory[0]
+                print("As you rummage through your inventory, a purple object hits you square in the face.")
+                print(f"You have lost 10 health. Your {stolen} is gone.\n")
+                self.health -= 10
+                self.inventory.remove(stolen)
+            input("Press Enter to continue...")
+
+        # Place each item on a pillar
+        for item in self.inventory:
+            print(f"\nYou place {item} on a pillar\n")
+            input("Press Enter to continue...")
+
+        # Freedom Ending requires at least 3 items on the pillars
+        if len(self.inventory) >= 3:
+            print("\nFreedom Ending: You step through the door.\nThe sun blinds you, but you are free.\n")
+            log_event(f"{self.username} reached Freedom Ending")
+            sys.exit()
+        else:
+            # Not enough items
+            print("\nAcceptance Ending: The door does not open.\nYou come to terms with the fact that you will never leave.\n")
+            log_event(f"{self.username} reached Acceptance Ending")
+            sys.exit()
 
 ###
 #This is the second path. There are going to be three scenes.
