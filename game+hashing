@@ -1,139 +1,205 @@
-#import sys
-import datetime
-import hashlib
-import os
-
-
+# ─────────────────────────────────────────────
+#  IMPORTS
+# ─────────────────────────────────────────────
+import sys           # Used for sys.exit() to quit the game
+import datetime      # Used to timestamp audit log entries
+import hashlib       # Used to compute SHA-256 hashes for save file integrity
+import os            # Used to check if files exist on disk
+ 
+ 
 # ─────────────────────────────────────────────
 #  AUDIT LOGGING
 # ─────────────────────────────────────────────
 def log_event(message):
+    """
+    Appends a timestamped message to the audit log file (audit_log.txt).
+    Called throughout the game to track player actions and important events.
+    """
     with open("audit_log.txt", "a") as log:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log.write(f"[{timestamp}] {message}\n")
-
-
+ 
+ 
 # ─────────────────────────────────────────────
-#  HASHING HELPERS  
+#  HASHING HELPERS
 # ─────────────────────────────────────────────
-HASH_FILE = "save_hash.txt"
-SAVE_FILE = "save_file.txt"
-
-
+ 
+# File paths used for save/hash storage
+HASH_FILE = "save_hash.txt"   # Stores the SHA-256 hash of the save file
+SAVE_FILE = "save_file.txt"   # Stores the actual game state (arc, health, inventory)
+ 
+ 
 def compute_hash(filepath):
-    """Return the SHA-256 hash of a file's contents."""
+    """
+    Reads a file in binary chunks and computes its SHA-256 hash.
+    Returns the hash as a hex string.
+    Used to detect if the save file has been tampered with.
+    """
     sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
+        # Read the file in 4096-byte chunks to handle large files efficiently
         for chunk in iter(lambda: f.read(4096), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
-
-
+ 
+ 
 def save_hash(hash_value):
-    """Write the hash to a separate file so we can verify later."""
+    """
+    Writes the given hash string to HASH_FILE.
+    Called right after saving the game so we have a reference to compare later.
+    """
     with open(HASH_FILE, "w") as f:
         f.write(hash_value)
-
-
+ 
+ 
 def load_hash():
-    """Read the previously stored hash. Returns None if it doesn't exist."""
+    """
+    Reads and returns the previously stored hash from HASH_FILE.
+    Returns None if the hash file doesn't exist yet (e.g. first run).
+    """
     if not os.path.exists(HASH_FILE):
         return None
     with open(HASH_FILE, "r") as f:
         return f.read().strip()
-
-
+ 
+ 
 def verify_save_integrity():
     """
-    Compute the current hash of save_file.txt and compare it to the
-    stored hash.  Returns True if the file is untampered, False otherwise.
+    Cyber Pack Feature: Save File Tamper Detection.
+    Computes the current SHA-256 hash of save_file.txt and compares it
+    to the stored hash. If they match, the file is untampered. If not,
+    the file may have been manually edited or corrupted.
+    Returns True if integrity check passes, False otherwise.
     """
+    # Can't verify a file that doesn't exist
     if not os.path.exists(SAVE_FILE):
         print("No save file found.")
         return False
-
+ 
     stored = load_hash()
     if stored is None:
         print("No hash record found – cannot verify integrity.")
         return False
-
+ 
     current = compute_hash(SAVE_FILE)
+ 
     if current == stored:
         print("[Tamper Check PASSED] Save file is intact.")
         log_event("Tamper check passed – save file loaded successfully.")
         return True
     else:
+        # Hashes don't match — file was changed outside the game
         print("[Tamper Check FAILED] Save file has been modified or corrupted!")
         print(f"  Expected : {stored}")
         print(f"  Got      : {current}")
         log_event("Tamper check FAILED – save file may have been tampered with.")
         return False
-
-
+ 
+ 
 # ─────────────────────────────────────────────
 #  GAME CLASS
 # ─────────────────────────────────────────────
 class Game:
-
+    """
+    Main game class. Holds all player state and contains the story logic
+    for all three paths (First Life, Deja Vu, Reincarnation/Revenge).
+    """
+ 
     def __init__(self, username):
-        self.username = username
-        self.inventory = []
-        self.story_arc = 1
-        self.health = 100
-        self.game_active = True
-        self.helpcat = False
-        self.revenge = False
-
+        """
+        Initializes a new game session with default player values.
+ 
+        Args:
+            username (str): The player's chosen username.
+        """
+        self.username = username    # Player's display name
+        self.inventory = []         # List of items the player has collected
+        self.story_arc = 1          # Tracks progress through the story (increments each scene)
+        self.health = 100           # Player's health (starts at 100, can drop to 0)
+        self.game_active = True     # Flag to control whether the game is still running
+        self.helpcat = False        # True if player helped the Cheshire Cat in Path 1
+        self.revenge = False        # True if player chose revenge in Path 3 Scene 2
+ 
     # ── SAVE ──────────────────────────────────
     def save_game(self):
+        """
+        Cyber Pack Feature: Secure Save with Hashing.
+        Writes the current game state (story arc, health, inventory) to
+        SAVE_FILE, then computes and stores its SHA-256 hash so that
+        load_game() can verify the file hasn't been altered.
+        """
         with open(SAVE_FILE, "w") as file:
             file.write(str(self.story_arc) + "\n")
             file.write(str(self.health) + "\n")
+            # Inventory is stored as a comma-separated string
             file.write(",".join(self.inventory) + "\n")
-
-        # Compute and store hash immediately after writing
+ 
+        # Hash the file immediately after writing to capture its clean state
         file_hash = compute_hash(SAVE_FILE)
         save_hash(file_hash)
-
+ 
         print("Game saved!")
         print(f"  SHA-256 fingerprint: {file_hash}")
         log_event(f"Game saved – {self.username} at arc {self.story_arc} | hash={file_hash}")
-
+ 
     # ── LOAD ──────────────────────────────────
     def load_game(self):
-        # Verify integrity BEFORE loading anything
+        """
+        Cyber Pack Feature: Tamper-Verified Load.
+        Verifies the save file's integrity before loading anything.
+        If the hash check fails, load is aborted to protect the game state.
+        If the check passes, restores story arc, health, and inventory.
+        """
+        # Always verify before loading — abort if tampered
         if not verify_save_integrity():
             print("Load aborted to protect game state.")
             return
-
+ 
         try:
             with open(SAVE_FILE, "r") as file:
                 self.story_arc = int(file.readline().strip())
                 self.health = int(file.readline().strip())
                 inventory_line = file.readline().strip()
+                # If inventory line is empty, default to an empty list
                 self.inventory = inventory_line.split(",") if inventory_line else []
-
+ 
             print("Game loaded!")
             print(f"  Arc: {self.story_arc}  |  Health: {self.health}  |  Inventory: {self.inventory}")
             log_event(f"Game loaded by {self.username}")
-
+ 
         except FileNotFoundError:
             print("No save file found.")
-
+ 
     # ── STATS ─────────────────────────────────
     def show_stats(self):
+        """
+        Displays the player's current story arc, health, and inventory.
+        Pauses until the player presses Enter before returning to the game.
+        """
         print("\n--- STATS ---")
         print("Story Arc:", self.story_arc)
         print("Health:", self.health)
         print("Inventory:", self.inventory)
         input("\nPress Enter to continue...")
-
+ 
     # ── MENU ──────────────────────────────────
     def get_menu_choice(self, limit):
+        """
+        Prompts the player for a numeric choice between 1 and `limit`.
+        If the player presses 'm', a side menu appears with options to
+        save, load, view stats, or quit. Keeps looping until valid input.
+ 
+        Args:
+            limit (int): The maximum valid choice number.
+ 
+        Returns:
+            int: The player's validated numeric choice.
+        """
         while True:
             choice = input("Enter choice (press m to see menu): ")
-
+ 
             if choice == "m":
+                # Show the in-game side menu
                 while True:
                     print("\n--- MAIN MENU ---")
                     print("A. Continue Playing")
@@ -141,11 +207,11 @@ class Game:
                     print("C. Load Game")
                     print("D. Show Stats")
                     print("E. Quit Game")
-
+ 
                     menu_choice = input("Choose an option: ")
-
+ 
                     if menu_choice.lower() == "a":
-                        break
+                        break  # Return to the game
                     elif menu_choice.lower() == "b":
                         self.save_game()
                         input("Press Enter to continue...")
@@ -160,6 +226,7 @@ class Game:
                     else:
                         print("Invalid choice.")
             else:
+                # Validate numeric input within the allowed range
                 try:
                     num = int(choice)
                     if num < 1 or num > limit:
@@ -169,26 +236,43 @@ class Game:
                 except ValueError:
                     print("Invalid choice.")
                     log_event("Invalid input entered by player.")
-
+ 
     def add_item(self, item):
+        """
+        Adds an item to the player's inventory and prints a confirmation.
+ 
+        Args:
+            item (str): The name of the item to add.
+        """
         self.inventory.append(item)
         print(f"[{item} Added Successfully]")
-
+ 
     # ── START ─────────────────────────────────
     def start(self):
+        """
+        Prints the opening narrative and launches the path selection screen.
+        Called once at the beginning of a new game session.
+        """
         print(f"\nWelcome {self.username} to the World of the Forgotten.")
         print("You were not supposed to wake up.")
         print("\nYou wake on cold grass. The sky above you swirls like paint.")
         print("\nA voice echoes:")
         print("'You're late again!'\n")
         self.opening_choice()
-
+ 
     def opening_choice(self):
+        """
+        Lets the player choose one of three story paths:
+          1 - First Life (Path One / Fey)
+          2 - Deja Vu   (Path Two / Harsimar)
+          3 - Reincarnation / Revenge (Path Three / Abby)
+        Loops until a valid choice is entered.
+        """
         print("Three paths stretch before you.\n")
         print("1. First Life")
         print("2. Deja Vu")
         print("3. Reincarnation / Revenge")
-
+ 
         while True:
             choice = input("\nWhich path do you choose? (Enter 1, 2, or 3): ")
             if choice == "1":
@@ -202,29 +286,44 @@ class Game:
                 break
             else:
                 print("Invalid choice. Please enter 1, 2, or 3.")
-
+ 
     # ─────────────────────────────────────────
     #  PATH ONE  (Fey)
     # ─────────────────────────────────────────
     def path_one(self):
+        """
+        Path 1: First Life.
+        A surreal Alice-in-Wonderland-inspired journey through a garden.
+        The player navigates 5 scenes and a final challenge.
+ 
+        Key items: Cracked Watch, Tea Vial, Glass Shard, Shiny Key, Bandages
+        Key NPCs: The Host, The Gatekeeper, The Smiling Girl, Cheshire Cat
+ 
+        Possible endings:
+          - Bad Ending: Loop    (failed the Gatekeeper riddle, accepted fate)
+          - Bad Ending: Death   (hit the Cheshire Cat with 0 health remaining)
+          - Acceptance Ending   (reached the Door with fewer than 3 items)
+          - Freedom Ending      (reached the Door with 3+ items)
+        """
         self.story_arc += 1
         log_event(f"{self.username} entered Path 1: First Life")
-
-        # Scene 1
+ 
+        # ── Scene 1: The Garden ────────────────
         print("\nScene 1: The Garden\n")
         print("You wake in a surreal garden. The sky swirls above you.")
         print("You see something on the ground.\n")
         print("1. Pick up the object")
         print("2. Ignore it\n")
         choice = self.get_menu_choice(2)
-
+ 
         if choice == 1:
+            # Picking up the watch provides a safety net at the Gatekeeper riddle
             self.inventory.append("Cracked Watch")
             print("You obtained: Cracked Watch\n")
         else:
             print("\nYou leave it behind...")
-
-        # Scene 2
+ 
+        # ── Scene 2: Tea Party ─────────────────
         self.story_arc += 1
         print("\nScene 2: Tea Party\n")
         print("You walk further into the garden and encounter a tea party.")
@@ -234,26 +333,29 @@ class Game:
         print("1. Drink the tea")
         print("2. Refuse\n")
         choice = self.get_menu_choice(2)
-
+ 
         if choice == 1:
+            # Tea Vial can be used to bypass the Gatekeeper riddle later
             print('You drink the tea.\nYou obtained: "Tea Vial"\n')
             print("The world bends slightly. Something feels... off...")
             print("The Host waves goodbye and walks away\n")
             self.inventory.append("Tea Vial")
         else:
+            # Refusing has no item reward but the Host disappears
             print("You refuse the tea. The Host's smile fades.")
             print('"How disappointing."')
             print("The Host disappears right before your eyes\n")
-
-        # Scene 3
+ 
+        # ── Scene 3: Mirror Garden ─────────────
         self.story_arc += 1
         print("\nScene 3: Mirror Garden\n")
         print("You walk into a garden filled with mirrors, but your reflection moves unusually\n")
         print("1. Touch the mirror")
         print("2. Look away\n")
         choice = self.get_menu_choice(2)
-
+ 
         if choice == 1:
+            # Touching the mirror gives an item but deals damage now AND in future scenes
             self.health -= 20
             self.inventory.append("Glass Shard")
             print('\nThe mirror cracks at your slight touch; your reflection smiles back incorrectly.')
@@ -262,42 +364,48 @@ class Game:
             print("\nYou have lost 20 health and will continue to lose health\n")
         else:
             print("\nYou avoid your own reflection\n")
-
-        # Scene 4
+ 
+        # ── Scene 4: Gatekeeper (Challenge 1) ──
         self.story_arc += 1
         print("\nScene 4: Gatekeeper\n")
         print("You feel disoriented and find yourself in a room.")
         print('The only exit is blocked by a tall figure.')
         print('"Answer correctly... Or remain!"\n')
-
+ 
+        # Glass Shard continues to drain health each scene it's carried
         if "Glass Shard" in self.inventory:
             self.health -= 20
             print("You have lost 20 health\n")
-
+ 
+        # Loop until the player answers correctly, bypasses with Tea Vial, or accepts their fate
         repeat = 1
         while repeat == 1:
             print('Riddle: "What has keys but cannot open locks?"\n')
-
+ 
+            # Show the Tea Vial option only if the player has it
             if "Tea Vial" in self.inventory:
                 print("1. Use Tea Vial")
-
+ 
             answer = input("Input your answer: ").lower()
-
+ 
             if answer == "1" and "Tea Vial" in self.inventory:
+                # Trade the Tea Vial to skip the riddle
                 print("\nThe Gatekeeper takes the Tea Vial and frowns.")
                 print("He steps aside and lets you through.\n")
                 self.inventory.remove("Tea Vial")
-                repeat += 1
-
+                repeat += 1  # Exit the loop
+ 
             elif answer == "piano":
+                # Correct answer to the riddle
                 print('The Gatekeeper frowns but lets you through anyway.')
                 print('You obtained: "Shiny Key"\n')
                 self.inventory.append("Shiny Key")
-                repeat += 1
-
+                repeat += 1  # Exit the loop
+ 
             else:
+                # Wrong answer — offer safety net if Cracked Watch is held
                 print('The Gatekeeper smiles. "WRONG"\n')
-
+ 
                 if "Cracked Watch" in self.inventory:
                     print("1. Accept your fate")
                     print("2. Use Cracked Watch\n")
@@ -305,39 +413,45 @@ class Game:
                 else:
                     print("1. Accept your fate")
                     choice = self.get_menu_choice(1)
-
+ 
                 if choice == 1:
+                    # Bad Ending: player gives up
                     print("\nBad Ending: Loop\nYou are trapped forever.\n")
                     log_event(f"{self.username} reached Bad Ending: Loop")
                     sys.exit()
                 else:
+                    # Cracked Watch gives one more attempt
                     print("\nYou only get one more chance. Use it wisely.\n")
-
-        # Scene 5
+ 
+        # ── Scene 5: Misty Meadow ──────────────
         self.story_arc += 1
         print("\nScene 5: Misty Meadow\n")
         print("As you wander through a misty meadow, a girl with a wide, toothy grin appears.")
         print('"Would you be a dear and watch Pompom for me? I will not be long!"\n')
-
+ 
+        # Glass Shard continues to drain health
         if "Glass Shard" in self.inventory:
             self.health -= 20
             print("You have lost 20 health\n")
-
+ 
         print("1. Yes")
         print("2. No\n")
         choice = self.get_menu_choice(2)
-
+ 
+        # Reset helpcat flag before this scene resolves
         self.helpcat = False
-
+ 
         if choice == 1:
+            # Agree to watch the cat
             print("\nThank you, will be back soon!")
             print("She skedaddles away.")
             print("You look down at a big fat purple cat.\n")
             print("1. Pet the cat")
             print("2. Hit the cat\n")
             choice = self.get_menu_choice(2)
-
+ 
             if choice == 1:
+                # Petting the cat earns trust → bandages reward → helpcat protection later
                 self.helpcat = True
                 print("\nYou reach toward the cat carefully.")
                 print('The Cheshire Cat suddenly turns to glare at you. "No." Then disappears.\n')
@@ -347,34 +461,40 @@ class Game:
                 print("1. Yes")
                 print("2. No\n")
                 choice = self.get_menu_choice(2)
-
+ 
                 if choice == 1:
+                    # Use bandages now to fully restore health
                     print("\nHealth restored to 100\n")
                     self.health = 100
                 else:
+                    # Save bandages in inventory for the Door scene item count
                     print('\nYou decline. You obtained: "Bandages"\n')
                     self.inventory.append("Bandages")
             else:
+                # Hitting the cat deals heavy damage — can trigger death ending
                 print("\nYou hit the cat. Cheshire bites you. You lose 50 health\n")
                 self.health -= 50
-
+ 
                 if self.health <= 0:
                     print("\nBad Ending: Death\nDo not hit the cat.\n")
                     log_event(f"{self.username} reached Bad Ending: Death")
                     sys.exit()
         else:
+            # Refusing to help means no Cheshire Cat protection at the Door
             print('\nShe frowns. "You will regret this." She walks away.\n')
-
-        # Final
+ 
+        # ── Final: The Door ────────────────────
         self.story_arc += 1
         print("Final: The Door\n")
         print('You see pillars in front of a glowing door.')
         print('The highest pillar reads: "Place three items to open the door"\n')
-
+ 
+        # Final Glass Shard drain (if not protected by helpcat)
         if "Glass Shard" in self.inventory and not self.helpcat:
             self.health -= 20
             print("You have lost 20 health\n")
-
+ 
+        # If player didn't help the cat, Cheshire steals an item as punishment
         if not self.helpcat:
             if self.inventory:
                 stolen = self.inventory[0]
@@ -383,33 +503,50 @@ class Game:
                 self.health -= 10
                 self.inventory.remove(stolen)
             input("Press Enter to continue...")
-
+ 
+        # Place each item on a pillar
         for item in self.inventory:
             print(f"\nYou place {item} on a pillar\n")
             input("Press Enter to continue...")
-
+ 
+        # Freedom Ending requires at least 3 items on the pillars
         if len(self.inventory) >= 3:
             print("\nFreedom Ending: You step through the door.")
             print("The sun blinds you, but you are free.\n")
             log_event(f"{self.username} reached Freedom Ending")
             sys.exit()
         else:
+            # Not enough items — the door stays shut
             print("\nAcceptance Ending: The door does not open.")
             print("You come to terms with the fact that you will never leave.\n")
             log_event(f"{self.username} reached Acceptance Ending")
             sys.exit()
-
+ 
     # ─────────────────────────────────────────
     #  PATH TWO  (Harsimar)
     # ─────────────────────────────────────────
     def path_two(self):
+        """
+        Path 2: Deja Vu.
+        A disorienting loop through a Hall of Mirrors, a Maze, and a Clock Tower.
+        The player may collect a Memory Fragment to navigate faster.
+ 
+        Possible endings:
+          - Ending 2: Partial Freedom  (reset the clock)
+          - Ending 3: Aware Loop       (break the clock — full awareness)
+        """
         self.story_arc += 1
         log_event(f"{self.username} entered Path 2: Deja Vu")
         print("\nPath 2: Deja Vu")
         print("Mirror Hall >> Maze >> Clock Tower\n")
         self.Mirror_hall_scene()
-
+ 
     def Mirror_hall_scene(self):
+        """
+        Scene 1 of Path 2.
+        The player enters a hall of mirrors where one reflection behaves differently.
+        Touching the mirror collects a Memory Fragment used in the Maze.
+        """
         try:
             print("Scene 1: Hall of Mirrors")
             print("You've entered a hall of mirrors!")
@@ -418,54 +555,74 @@ class Game:
             print("1. Touch the mirror")
             print("2. Ignore it\n")
             choice = self.get_menu_choice(2)
-
+ 
             if choice == 1:
+                # Memory Fragment unlocks an easier path through the maze
                 print("A memory flashes through your mind.")
                 self.add_item("Memory Fragment")
                 log_event("Path 2: Player touched the mirror, Memory Fragment collected.")
             else:
                 print("You walk past. The reflection watches silently.")
-
-            self.maze_scene()          # fixed: was maze_scene(inventory)
+ 
+            self.maze_scene()
         except Exception as e:
             print("Error in Mirror Hall:", e)
-            self.maze_scene()
-
+            self.maze_scene()  # Continue even if something goes wrong
+ 
     def maze_scene(self):
+        """
+        Scene 2 of Path 2.
+        The player navigates a repeating maze. Having the Memory Fragment
+        allows them to escape quickly; without it they still escape but slower.
+        The fast_escape flag is passed to clock_tower_scene for the final ending.
+        """
         try:
             print("\nScene 2: Maze")
             print("The paths repeat. You feel stuck.\n")
-
+ 
             if "Memory Fragment" in self.inventory:
+                # Player has the fragment — offer a smarter option
                 print("1. Follow instinct")
                 print("2. Use Memory\n")
                 choice = self.get_menu_choice(2)
-
+ 
                 if choice == 2:
+                    # Using the fragment = fast escape, noted in the ending
                     print("Memory guides you perfectly!")
                     print("You escape the maze.\n")
                     log_event("Path 2: Player used Memory Fragment to escape the maze.")
                     self.clock_tower_scene(True)
                 else:
+                    # Ignored the fragment — still escapes, just slower
                     print("You wander longer but eventually escape.\n")
                     self.clock_tower_scene(False)
             else:
+                # No fragment, only one option
                 print("1. Follow instinct\n")
                 self.get_menu_choice(1)
                 print("You wander longer but eventually escape.\n")
-                self.clock_tower_scene(False)   # fixed: was clock_tower_scene(False)
+                self.clock_tower_scene(False)
         except Exception as e:
             print("Error in Maze:", e)
             self.clock_tower_scene(False)
-
+ 
     def clock_tower_scene(self, fast_escape):
+        """
+        Scene 3 (Final) of Path 2.
+        The player faces a massive clock and must decide its fate.
+        Resetting → Partial Freedom ending.
+        Breaking → Aware Loop ending (enhanced if fast_escape is True).
+ 
+        Args:
+            fast_escape (bool): True if player used Memory Fragment in the maze.
+        """
         try:
             print("Scene 3: Clock Tower")
             print("A massive clock ticks loudly.\n")
             print("1. Reset the clock")
             print("2. Break the clock\n")
             choice = self.get_menu_choice(2)
-
+ 
             if choice == 1:
                 self.ending_2()
             else:
@@ -473,8 +630,12 @@ class Game:
         except Exception as e:
             print("Error in Clock Tower:", e)
             self.ending_3(False)
-
+ 
     def ending_2(self):
+        """
+        Ending 2: Partial Freedom.
+        Time resets and the player escapes into darkness — a bittersweet outcome.
+        """
         try:
             print("\nEnding 2: Partial Freedom")
             print("Time resets. The world shifts.")
@@ -485,12 +646,21 @@ class Game:
         except Exception as e:
             print("Ending 2: Partial freedom achieved.", e)
             self.game_active = False
-
+ 
     def ending_3(self, fast_escape):
+        """
+        Ending 3: Aware Loop.
+        The clock shatters. The player remains trapped but gains full awareness.
+        If fast_escape is True, the ending acknowledges the Memory Fragment use.
+ 
+        Args:
+            fast_escape (bool): Whether the Memory Fragment was used in the maze.
+        """
         try:
             print("\nEnding 3: Aware Loop")
             print("The clock shatters.")
             if fast_escape:
+                # Bonus acknowledgement for smart item use
                 print("You used the Memory Fragment perfectly.")
             print("You remain – but now you remember everything.")
             print("Full awareness achieved.\n")
@@ -499,15 +669,29 @@ class Game:
         except Exception as e:
             print("Ending 3: Aware loop achieved.", e)
             self.game_active = False
-
+ 
     # ─────────────────────────────────────────
     #  PATH THREE  (Abby)
     # ─────────────────────────────────────────
     def path_three(self):
+        """
+        Path 3: Reincarnation / Revenge.
+        The player remembers their past life and must confront it.
+        Choices in Scene 2 (forgive vs. revenge) affect which answer
+        unlocks Scene 3's door and shape the Throne Room finale.
+ 
+        Key items: Memory Fragment, Mask Fragment (forgiveness), Shadow Crown (revenge)
+ 
+        Possible endings:
+          - Bad Ending: Forgotten     (gave up in the Memory Chamber)
+          - True Ending: Freedom      (destroyed the system)
+          - Dark Ending: New Ruler    (took control of the throne)
+          - Corruption Ending         (let go — something worse takes over)
+        """
         self.story_arc += 1
         log_event(f"{self.username} entered Path 3: Reincarnation")
-
-        # Scene 1
+ 
+        # ── Scene 1: Hidden Tunnel ─────────────
         print("\nScene 1: Hidden Tunnel\n")
         print("You already know this place.")
         print("The whispering voice guides you underground.")
@@ -515,19 +699,21 @@ class Game:
         print("1. Enter the tunnel")
         print("2. Turn back\n")
         choice = self.get_menu_choice(2)
-
+ 
         if choice == 1:
             print("\nYou step into the darkness.")
             print("Fragments of your past flash before your eyes.\n")
         else:
+            # The world forces the player forward — no escape
             print("\nYou try to turn back...")
             print("But the garden shifts around you.")
             print("There is no escape. You are pulled forward.\n")
-
+ 
+        # Memory Fragment is always collected here regardless of choice
         self.inventory.append("Memory Fragment")
         print('You obtained: "Memory Fragment"\n')
-
-        # Scene 2
+ 
+        # ── Scene 2: The Forgotten Ones ────────
         self.story_arc += 1
         print("\nScene 2: The Forgotten Ones\n")
         print("Figures emerge from the shadows.")
@@ -535,78 +721,91 @@ class Game:
         print('"Do you still hate us?"\n')
         print("1. Forgive them")
         print("2. Take revenge\n")
-
-        self.revenge = False
+ 
+        self.revenge = False  # Reset flag before the choice
         choice = self.get_menu_choice(2)
-
+ 
         if choice == 1:
+            # Forgiveness path — Mask Fragment item, "forgiveness" unlocks Scene 3 door
             print('\nYou lower your weapon.')
             print('"I will end the cycle differently."\n')
             self.inventory.append("Mask Fragment")
             print('You obtained: "Mask Fragment"\n')
             log_event(f"{self.username} chose forgiveness in Scene 2")
         else:
+            # Revenge path — Shadow Crown item, "revenge" unlocks Scene 3 door
             self.revenge = True
             print("\nYour anger consumes you.")
             print("The world around you darkens.\n")
             self.inventory.append("Shadow Crown")
             print('You obtained: "Shadow Crown"\n')
             log_event(f"{self.username} chose revenge in Scene 2")
-
-        # Scene 3
+ 
+        # ── Scene 3: Memory Chamber (Challenge 2) ──
         self.story_arc += 1
         print("\nScene 3: Memory Chamber\n")
         print("A massive door blocks your path.")
         print('Words appear across its surface:\n')
         print('"What breaks the cycle?"\n')
         print("(Hint: speak your truth)\n")
-
+ 
+        # Loop until the player answers correctly or gives up
         repeat = 1
         while repeat == 1:
             answer = input("Input your answer: ").lower()
-
+ 
             if answer == "forgiveness":
+                # Always valid if player chose forgiveness in Scene 2
                 print("\nThe door slowly opens.\n")
-                repeat += 1
+                repeat += 1  # Exit loop
+ 
             elif answer == "revenge":
                 if self.revenge:
+                    # Valid only if player actually chose the revenge path
                     print("\nThe darkness accepts your answer.")
                     print("The door opens violently.\n")
-                    repeat += 1
+                    repeat += 1  # Exit loop
                 else:
+                    # Mismatch — player chose forgiveness but typed revenge
                     print("\nThe chamber rejects your answer.")
                     print("Your path does not match your words.\n")
             else:
+                # Wrong answer — give a retry or quit option
                 print("\nThe chamber remains silent.\n")
                 print("1. Try again")
                 print("2. Give up\n")
                 choice = self.get_menu_choice(2)
-
+ 
                 if choice == 2:
+                    # Bad Ending: player quits the puzzle
                     print("\nBad Ending: Forgotten\n")
                     print("Your memories fade forever.\n")
                     log_event(f"{self.username} reached Bad Ending: Forgotten")
                     sys.exit()
-
-        # Final Scene
+                # If choice == 1, the while loop continues for another attempt
+ 
+        # ── Final Scene: Throne Room ───────────
         self.story_arc += 1
         print("\nFinal Scene: Throne Room\n")
         print('The Host sits upon a throne of roots and glass.\n')
         print('"So... this is the version of you that remembers."\n')
-
+ 
+        # Dialogue lines vary based on which items the player is carrying
         if "Mask Fragment" in self.inventory:
             print("The Host looks uneasy at the fragment in your hand.\n")
         if "Shadow Crown" in self.inventory:
             print("The throne trembles in response to your anger.\n")
         if "Memory Fragment" in self.inventory:
             print("The Host's eyes flicker. \"You remember all of it, don't you.\"\n")
-
+ 
+        # Three-way final choice determines the ending
         print("1. Destroy the system")
         print("2. Take control")
         print("3. Let go\n")
         choice = self.get_menu_choice(3)
-
+ 
         if choice == 1:
+            # Best ending — true freedom, the garden collapses
             print("\nTrue Ending: Freedom\n")
             print("The garden begins to collapse.")
             print("The sky finally clears.\n")
@@ -614,22 +813,26 @@ class Game:
             print("For the first time... you are free.\n")
             log_event(f"{self.username} reached True Ending: Freedom")
             sys.exit()
-
+ 
         elif choice == 2:
+            # Dark ending — player becomes the new ruler (ironic if revenge path)
             print("\nDark Ending: The New Ruler\n")
             print("You sit upon the throne.")
             print("The garden bends to your will.\n")
             if self.revenge:
+                # Player became what they hated
                 print("You already know what comes next.")
                 print("You became exactly what trapped you.\n")
             else:
+                # Hopeful but uncertain — maybe they'll do better
                 print("Maybe this time things will be different.")
                 print("Maybe.\n")
             print('"They are late again."\n')
             log_event(f"{self.username} reached Dark Ending: New Ruler")
             sys.exit()
-
+ 
         else:
+            # Corruption ending — letting go invites something worse
             print("\nCorruption Ending\n")
             print("You let everything go.\n")
             print("But something else takes your place.")
@@ -637,23 +840,29 @@ class Game:
             print("The cycle continues.\n")
             log_event(f"{self.username} reached Corruption Ending")
             sys.exit()
-
-
+ 
+ 
 # ─────────────────────────────────────────────
 #  MAIN
 # ─────────────────────────────────────────────
 def main():
+    """
+    Entry point for the game.
+    Prompts the player for a username (minimum 3 characters),
+    creates a Game instance, logs the session start, and begins the game.
+    """
     while True:
         username = input("Hello stranger. Enter a username: ")
         if len(username) >= 3:
             break
         else:
             print("Username must be at least 3 characters long. Try again!\n")
-
+ 
     game = Game(username)
     log_event(f"Game started by user: {username}")
     game.start()
-
-
+ 
+ 
+# Only run main() if this script is executed directly (not imported as a module)
 if __name__ == "__main__":
     main()
