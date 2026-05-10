@@ -281,6 +281,58 @@ Pathway one - fey start
                 else:
                     # Cracked Watch gives one more attempt
                     print("\nYou only get one more chance. Use it wisely.\n")
+#Major event 5, NPC 3 AND 4, Drop 5
+        self.story_arc += 1
+        print("\nScene 5: Misty Meadow\n\nAs you wander through a misty meadow, a girl with a wide, toothy grin appears.\n"Would you be a dear and watch Pompom for me? I will not be long!"\n')
+
+        # Glass Shard drain health
+        if "Glass Shard" in self.inventory:
+            self.health -= 20
+            print("You have lost 20 health\n")
+
+        print("1. Yes\n2. No\n")
+        choice = self.get_menu_choice(2)
+
+        # Will be used in final sence
+        self.helpcat = False
+
+        if choice == 1:
+            # Agree to watch the cat
+            print("\nThank you, will be back soon!\nShe skedaddles away.\nYou look down at a big fat purple cat.\n")
+            print("1. Pet the cat\n2. Hit the cat\n")
+            choice = self.get_menu_choice(2)
+
+            if choice == 1:
+                # Cat will not steal item later in final sence
+                self.helpcat = True
+                print("\nYou reach toward the cat carefully.\nThe Cheshire Cat suddenly turns to glare at you. "No." Then disappears.\n\nThe smiling girl appears. "Thank you! Here!"\nShe gives you bandages. You obtained: "Bandages"')
+                print("Do you want to use the bandages?\n")
+                print("1. Yes\n2. No\n")
+                choice = self.get_menu_choice(2)
+
+                if choice == 1:
+                    # Use bandages to restore health
+                    print("\nHealth restored to 100\n")
+                    self.health = 100
+                else:
+                    # Save bandages in inventory for the Door scene item count
+                    print('\nYou decline. You obtained: "Bandages"\n')
+                    self.inventory.append("Bandages")
+            else:
+                # Hitting the cat deals heavy damage - death
+                print("\nYou hit the cat. Cheshire bites you. You lose 50 health\n")
+                self.health -= 50
+
+                if self.health <= 0:
+                    print("\nBad Ending: Death\nDo not hit the cat.\n")
+                    log_event(f"{self.username} reached Bad Ending: Death")
+                    sys.exit()
+        else:
+            # Refusing to help means no Cheshire Cat protection at the Door
+            print('\nShe frowns. "You will regret this."\nThe cat lunges at you\nYou lose 20 health\nWhen you regain your vison, they are gone')
+            self.health -= 20
+
+            
 
 
 ###
