@@ -182,6 +182,7 @@ Pathway one - fey start
     -  NPCs: The Host, The Gatekeeper, The Smiling Girl, Cheshire Cat
     - Key endings: Acceptance Ending and Freedom ending
 """
+    def path_one(self):
 #Major event 1, NPC 1, Drop 1
         self.story_arc += 1
         log_event(f"{self.username} entered Path 1: First Life")
