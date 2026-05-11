@@ -178,9 +178,9 @@ class Game:
 
     def opening_choice(self):
         print("Three paths stretch before you.\n")
-        print("1. Follow the white figureFirst Life")
-        print("2. Walk into the forest alone 'Deja Vu'")
-        print("3. Follow the whispering voiceReincarnation/ Revenge")
+        print("1. First Life")
+        print("2. Deja Vu”)
+        print("3. Reincarnation/ Revenge")
 
 
         while True:
