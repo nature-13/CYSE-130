@@ -4,11 +4,11 @@ World of the Forgotten
 
 Team Members 
 
-Harsimar Kaur 
-Hajra Amin
-Rashed Alkhaaldi
-Fey Zurita-Sejas
-Abby Agyemang
+Harsimar Kaur,
+Hajra Amin,
+Rashed Alkhaaldi,
+Fey Zurita-Sejas,
+Abby Agyemang.
 
 Project Overview 
 
