@@ -5,6 +5,7 @@ World of the Forgotten
 Team Members 
 
 Harsimar Kaur 
+Rashed Alkhaaldi
  
 
 Project Overview 
