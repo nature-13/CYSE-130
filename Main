@@ -630,6 +630,7 @@ def main():
 
 
     game =Game(username)
+    log_event(f"GAME_START - Player started a new game - User = {username}")
     game.start()
 
 
