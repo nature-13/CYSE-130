@@ -1,3 +1,4 @@
+#Path 3
 def path_three(self):
         self.story_arc += 1
         log_event(f"{self.username} entered Path 3: Reincarnation")
