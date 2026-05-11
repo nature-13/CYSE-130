@@ -567,7 +567,7 @@ class Game:
                     log_event(f"{self.username} reached Bad Ending: Forgotten")
                     sys.exit()
 
-        # Final Scene
+        # Final Scene...the final countdown...muahahaha
         self.story_arc += 1
         print("\nFinal Scene: Throne Room\n")
         print('The Host sits upon a throne of roots and glass.\n')
