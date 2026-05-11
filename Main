@@ -478,7 +478,6 @@ class Game:
             print("Ending 3: Aware loop achieved.", e)
             self.game_active = False
 
-#Major event 1
  def path_three(self):
         self.story_arc += 1
         log_event(f"{self.username} entered Path 3: Reincarnation")
