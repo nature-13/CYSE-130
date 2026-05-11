@@ -181,7 +181,6 @@ def opening_choice(self):
         print("2. Deja Vu")
         print("3. Reincarnation / Revenge")
 
-
         while True:
             choice = input("\nWhich path do you choose? (Enter 1,2, or 3): ")
             if choice == "1":
