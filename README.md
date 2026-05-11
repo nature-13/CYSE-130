@@ -1,6 +1,6 @@
 # CYSE-130
 Text-based game
-The Garden Between Lives - Graphic Version
+The Garden Between Lives
 
 GAME DESCRIPTION:
 FEATURES IMPLEMENTED:
