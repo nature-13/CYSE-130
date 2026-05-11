@@ -162,6 +162,12 @@ class Game:
 
 
     def start (self):
+        print("\n--- HOW TO PLAY ---")
+        print("Enter the number of your chosen action when prompted.")
+        print("Press 'm' at any choice to open the main menu.")
+        print("You can save, load, and check your stats from the menu.")
+        print("Your choices affect the story and ending.")
+        print("-------------------\n")
         print(f"\nWelcome {self.username} to the World of the Forgotten.")
         print("You were not supposed to wake up.")
         print("\nYou wake on cold grass. The sky above you swirls like paint.")
