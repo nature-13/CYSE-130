@@ -175,7 +175,7 @@ class Game:
         print("'You're late again!'\n")
         self.opening_choice()
 
-def opening_choice(self):
+    def opening_choice(self):
         print("Three paths stretch before you.\n")
         print("1. First Life")
         print("2. Deja Vu")
